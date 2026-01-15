@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
+import { signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from 'firebase/auth';
 import { auth, googleProvider } from '../../config/firebase';
 
 // Async thunks
@@ -7,13 +7,8 @@ export const signInWithGoogle = createAsyncThunk(
   'auth/signInWithGoogle',
   async (_, { rejectWithValue }) => {
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      return {
-        uid: result.user.uid,
-        email: result.user.email,
-        displayName: result.user.displayName,
-        photoURL: result.user.photoURL
-      };
+      await signInWithRedirect(auth, googleProvider);
+      return null; // User will be redirected, result handled in initAuthListener
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -34,6 +29,12 @@ export const signOutUser = createAsyncThunk(
 
 // Listen to auth state changes
 export const initAuthListener = () => (dispatch) => {
+  // Check for redirect result first
+  getRedirectResult(auth).catch((error) => {
+    console.error('Redirect result error:', error);
+    dispatch(setAuthLoading(false));
+  });
+  
   return onAuthStateChanged(auth, (user) => {
     if (user) {
       dispatch(setUser({
@@ -76,8 +77,8 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(signInWithGoogle.fulfilled, (state, action) => {
-        state.user = action.payload;
-        state.loading = false;
+        // With redirect, user will be set by onAuthStateChanged
+        state.loading = true; // Keep loading until redirect completes
         state.error = null;
       })
       .addCase(signInWithGoogle.rejected, (state, action) => {
