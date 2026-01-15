@@ -1,0 +1,103 @@
+.auth-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+  padding: clamp(1rem, 3vw, 2rem);
+}
+
+.auth-container {
+  background: var(--bg-card);
+  border-radius: var(--border-radius-lg);
+  padding: clamp(2rem, 6vw, 3rem) clamp(1.5rem, 5vw, 2.5rem);
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+  max-width: 420px;
+  width: 100%;
+}
+
+.auth-title {
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: clamp(1rem, 3vw, 1.5rem) 0 clamp(0.5rem, 2vw, 0.75rem);
+  line-height: 1.2;
+}
+
+.auth-description {
+  font-size: clamp(0.9375rem, 2.5vw, 1.0625rem);
+  color: var(--text-secondary);
+  margin-bottom: clamp(2rem, 5vw, 2.5rem);
+  line-height: 1.5;
+}
+
+.btn-google-signin {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.75rem, 2vw, 1rem);
+  padding: clamp(0.875rem, 3vw, 1.125rem) clamp(1.5rem, 4vw, 2rem);
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-size: clamp(1rem, 2.5vw, 1.0625rem);
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  margin-bottom: clamp(1rem, 3vw, 1.5rem);
+}
+
+.btn-google-signin:hover:not(:disabled) {
+  background: var(--bg-card-hover);
+  border-color: var(--accent-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-google-signin:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-google-signin:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.google-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.signin-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--accent-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.auth-error {
+  padding: clamp(0.75rem, 2vw, 1rem);
+  background: var(--error-light);
+  border: 1px solid var(--error);
+  border-radius: var(--border-radius-sm);
+  color: var(--error);
+  font-size: clamp(0.875rem, 2vw, 0.9375rem);
+  margin-bottom: clamp(1rem, 3vw, 1.5rem);
+}
+
+.auth-footer {
+  font-size: clamp(0.8125rem, 2vw, 0.875rem);
+  color: var(--text-tertiary);
+  margin: 0;
+  line-height: 1.4;
+}

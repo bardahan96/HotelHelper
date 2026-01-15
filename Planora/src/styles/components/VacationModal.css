@@ -1,0 +1,53 @@
+.vacation-modal-content {
+  max-width: 550px;
+}
+
+.vacation-modal-content .form-group {
+  position: relative;
+}
+
+/* Add emoji icons to form labels */
+.vacation-modal-content .form-group:nth-child(1) label::after {
+  content: '✈️';
+  margin-left: auto;
+  font-size: clamp(1.2rem, 2.5vw, 1.4rem);
+}
+
+.vacation-modal-content .form-group:nth-child(2) label::after {
+  content: '📍';
+  margin-left: auto;
+  font-size: clamp(1.2rem, 2.5vw, 1.4rem);
+}
+
+.vacation-modal-content .form-group:nth-child(3) label::after {
+  content: '📅';
+  margin-left: auto;
+  font-size: clamp(1.2rem, 2.5vw, 1.4rem);
+}
+
+.vacation-modal-content .form-group:nth-child(4) label::after {
+  content: '🏁';
+  margin-left: auto;
+  font-size: clamp(1.2rem, 2.5vw, 1.4rem);
+}
+
+.vacation-modal-content .form-group label {
+  display: flex;
+  align-items: center;
+}
+
+/* Helper text under inputs */
+.form-helper-text {
+  font-size: clamp(0.8rem, 1.5vw, 0.9rem);
+  color: var(--text-tertiary);
+  margin-top: clamp(0.25rem, 1vw, 0.4rem);
+  font-style: italic;
+}
+
+.form-helper-text.success {
+  color: var(--success);
+}
+
+.form-helper-text.error {
+  color: var(--error);
+}

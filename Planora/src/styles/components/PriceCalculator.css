@@ -1,0 +1,79 @@
+.price-calculator {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  padding: clamp(1rem, 3vw, 1.5rem);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-speed);
+}
+
+.price-calculator-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: clamp(0.75rem, 2vw, 1rem);
+  padding-bottom: clamp(0.75rem, 2vw, 1rem);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.price-calculator-header h3 {
+  font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.price-total {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 700;
+  color: var(--accent-primary);
+}
+
+.price-breakdown h4 {
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  color: var(--text-secondary);
+  margin-bottom: clamp(0.5rem, 1.5vw, 0.75rem);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.price-breakdown-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.5rem, 1.5vw, 0.75rem);
+}
+
+.price-breakdown-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: clamp(0.5rem, 1.5vw, 0.75rem);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-sm);
+  transition: background-color var(--transition-speed);
+}
+
+.price-breakdown-item:hover {
+  background: var(--bg-tertiary);
+}
+
+.breakdown-category {
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  color: var(--text-primary);
+}
+
+.breakdown-amount {
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.price-empty {
+  color: var(--text-tertiary);
+  font-size: clamp(0.85rem, 2vw, 0.95rem);
+  text-align: center;
+  font-style: italic;
+  margin-top: clamp(0.5rem, 1.5vw, 0.75rem);
+}
+
