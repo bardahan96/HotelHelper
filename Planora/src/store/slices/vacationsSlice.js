@@ -1,28 +1,44 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  getDocs,
-  serverTimestamp 
-} from 'firebase/firestore';
-import { db } from '../../config/firebase';
+// AUTH DISABLED - Using local storage instead of Firestore
+// import { 
+//   collection, 
+//   doc, 
+//   addDoc, 
+//   updateDoc, 
+//   deleteDoc, 
+//   getDocs,
+//   serverTimestamp 
+// } from 'firebase/firestore';
+// import { db } from '../../config/firebase';
 
-// Async thunks
+// Local storage helper
+const STORAGE_KEY = 'planora-vacations-local';
+
+const saveToLocalStorage = (vacations) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(vacations));
+  } catch (error) {
+    console.error('Failed to save to localStorage:', error);
+  }
+};
+
+const loadFromLocalStorage = () => {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch (error) {
+    console.error('Failed to load from localStorage:', error);
+    return [];
+  }
+};
+
+// Async thunks (LOCAL STORAGE MODE)
 export const fetchVacations = createAsyncThunk(
   'vacations/fetchAll',
   async (workspaceId, { rejectWithValue }) => {
     try {
-      const vacationsRef = collection(db, 'workspaces', workspaceId, 'vacations');
-      const snapshot = await getDocs(vacationsRef);
-      
-      const vacations = [];
-      snapshot.forEach((doc) => {
-        vacations.push({ id: doc.id, ...doc.data() });
-      });
-      
+      // Load from local storage
+      const vacations = loadFromLocalStorage();
       return vacations;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -32,25 +48,21 @@ export const fetchVacations = createAsyncThunk(
 
 export const addVacation = createAsyncThunk(
   'vacations/add',
-  async ({ workspaceId, vacationData, userId }, { rejectWithValue }) => {
+  async ({ workspaceId, vacationData, userId }, { rejectWithValue, getState }) => {
     try {
-      const vacationsRef = collection(db, 'workspaces', workspaceId, 'vacations');
-      
       const newVacation = {
         ...vacationData,
+        id: Date.now().toString(), // Simple ID generation
         createdBy: userId,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      };
-      
-      const docRef = await addDoc(vacationsRef, newVacation);
-      
-      return {
-        id: docRef.id,
-        ...newVacation,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
+      
+      const currentVacations = getState().vacations.items;
+      const updatedVacations = [...currentVacations, newVacation];
+      saveToLocalStorage(updatedVacations);
+      
+      return newVacation;
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -59,16 +71,15 @@ export const addVacation = createAsyncThunk(
 
 export const updateVacation = createAsyncThunk(
   'vacations/update',
-  async ({ workspaceId, vacationId, updates }, { rejectWithValue }) => {
+  async ({ workspaceId, vacationId, updates }, { rejectWithValue, getState }) => {
     try {
-      const vacationRef = doc(db, 'workspaces', workspaceId, 'vacations', vacationId);
-      
-      const updateData = {
-        ...updates,
-        updatedAt: serverTimestamp()
-      };
-      
-      await updateDoc(vacationRef, updateData);
+      const currentVacations = getState().vacations.items;
+      const updatedVacations = currentVacations.map(v => 
+        v.id === vacationId 
+          ? { ...v, ...updates, updatedAt: new Date().toISOString() }
+          : v
+      );
+      saveToLocalStorage(updatedVacations);
       
       return {
         id: vacationId,
@@ -83,10 +94,11 @@ export const updateVacation = createAsyncThunk(
 
 export const deleteVacation = createAsyncThunk(
   'vacations/delete',
-  async ({ workspaceId, vacationId }, { rejectWithValue }) => {
+  async ({ workspaceId, vacationId }, { rejectWithValue, getState }) => {
     try {
-      const vacationRef = doc(db, 'workspaces', workspaceId, 'vacations', vacationId);
-      await deleteDoc(vacationRef);
+      const currentVacations = getState().vacations.items;
+      const updatedVacations = currentVacations.filter(v => v.id !== vacationId);
+      saveToLocalStorage(updatedVacations);
       
       return vacationId;
     } catch (error) {
@@ -98,7 +110,7 @@ export const deleteVacation = createAsyncThunk(
 const vacationsSlice = createSlice({
   name: 'vacations',
   initialState: {
-    items: [],
+    items: loadFromLocalStorage(), // Load from localStorage on init
     loading: false,
     error: null,
     syncing: false
@@ -106,10 +118,12 @@ const vacationsSlice = createSlice({
   reducers: {
     setVacations: (state, action) => {
       state.items = action.payload;
+      saveToLocalStorage(action.payload);
     },
     clearVacations: (state) => {
       state.items = [];
       state.error = null;
+      saveToLocalStorage([]);
     },
     clearVacationsError: (state) => {
       state.error = null;
@@ -117,15 +131,18 @@ const vacationsSlice = createSlice({
     // Optimistic updates for real-time sync
     addVacationOptimistic: (state, action) => {
       state.items.push(action.payload);
+      saveToLocalStorage(state.items);
     },
     updateVacationOptimistic: (state, action) => {
       const index = state.items.findIndex(v => v.id === action.payload.id);
       if (index !== -1) {
         state.items[index] = { ...state.items[index], ...action.payload };
+        saveToLocalStorage(state.items);
       }
     },
     deleteVacationOptimistic: (state, action) => {
       state.items = state.items.filter(v => v.id !== action.payload);
+      saveToLocalStorage(state.items);
     }
   },
   extraReducers: (builder) => {

@@ -37,47 +37,47 @@ const App = () => {
 
   const currency = '$';
 
-  // Initialize auth listener
-  useEffect(() => {
-    const unsubscribe = dispatch(initAuthListener());
-    return () => unsubscribe?.();
-  }, [dispatch]);
+  // Initialize auth listener (DISABLED)
+  // useEffect(() => {
+  //   const unsubscribe = dispatch(initAuthListener());
+  //   return () => unsubscribe?.();
+  // }, [dispatch]);
 
-  // Handle URL params for workspace joining
-  useEffect(() => {
-    if (!user || currentWorkspace) return;
+  // Handle URL params for workspace joining (DISABLED)
+  // useEffect(() => {
+  //   if (!user || currentWorkspace) return;
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const workspaceId = urlParams.get('workspace');
+  //   const urlParams = new URLSearchParams(window.location.search);
+  //   const workspaceId = urlParams.get('workspace');
 
-    if (workspaceId) {
-      dispatch(joinWorkspace({ workspaceId, userId: user.uid }));
-      // Clean up URL
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  }, [user, currentWorkspace, dispatch]);
+  //   if (workspaceId) {
+  //     dispatch(joinWorkspace({ workspaceId, userId: user.uid }));
+  //     // Clean up URL
+  //     window.history.replaceState({}, document.title, window.location.pathname);
+  //   }
+  // }, [user, currentWorkspace, dispatch]);
 
-  // Real-time Firestore sync
-  useFirestoreSync(currentWorkspace?.id);
+  // Real-time Firestore sync (DISABLED)
+  // useFirestoreSync(currentWorkspace?.id);
 
-  // Vacation CRUD operations
+  // Vacation CRUD operations (AUTH DISABLED - using local mode)
   const handleSaveVacation = async (vacationData) => {
-    if (!currentWorkspace || !user) return;
+    // if (!currentWorkspace || !user) return;
 
     if (editingVacation) {
       // Update existing vacation
       const { id, ...updates } = vacationData;
       await dispatch(updateVacation({
-        workspaceId: currentWorkspace.id,
+        workspaceId: 'local', // currentWorkspace.id,
         vacationId: id,
         updates
       }));
     } else {
       // Add new vacation
       await dispatch(addVacation({
-        workspaceId: currentWorkspace.id,
+        workspaceId: 'local', // currentWorkspace.id,
         vacationData,
-        userId: user.uid
+        userId: 'local-user' // user.uid
       }));
     }
     setEditingVacation(null);
@@ -89,16 +89,16 @@ const App = () => {
   };
 
   const handleDeleteVacation = async (vacationId) => {
-    if (!currentWorkspace) return;
+    // if (!currentWorkspace) return;
     await dispatch(deleteVacation({
-      workspaceId: currentWorkspace.id,
+      workspaceId: 'local', // currentWorkspace.id,
       vacationId
     }));
   };
 
   // Item selection
   const handleSelectItem = async (vacationId, category, itemId) => {
-    if (!currentWorkspace) return;
+    // if (!currentWorkspace) return;
 
     const vacation = vacations.find(v => v.id === vacationId);
     if (!vacation) return;
@@ -111,7 +111,7 @@ const App = () => {
     };
 
     await dispatch(updateVacation({
-      workspaceId: currentWorkspace.id,
+      workspaceId: 'local', // currentWorkspace.id,
       vacationId,
       updates
     }));
@@ -138,7 +138,7 @@ const App = () => {
   // Delete item
   const handleDeleteItem = async (vacationId, category, itemId, customName) => {
     if (!window.confirm('Delete this item?')) return;
-    if (!currentWorkspace) return;
+    // if (!currentWorkspace) return;
 
     const vacation = vacations.find(v => v.id === vacationId);
     if (!vacation) return;
@@ -167,7 +167,7 @@ const App = () => {
     }
 
     await dispatch(updateVacation({
-      workspaceId: currentWorkspace.id,
+      workspaceId: 'local', // currentWorkspace.id,
       vacationId,
       updates
     }));
@@ -175,7 +175,7 @@ const App = () => {
 
   // Save item from modal
   const handleSaveItem = async (itemData, customCategoryName) => {
-    if (!currentWorkspace) return;
+    // if (!currentWorkspace) return;
 
     const vacation = vacations.find(v => v.id === currentVacationId);
     if (!vacation) return;
@@ -190,7 +190,7 @@ const App = () => {
         }
       };
       await dispatch(updateVacation({
-        workspaceId: currentWorkspace.id,
+        workspaceId: 'local', // currentWorkspace.id,
         vacationId: currentVacationId,
         updates
       }));
@@ -236,7 +236,7 @@ const App = () => {
     }
 
     await dispatch(updateVacation({
-      workspaceId: currentWorkspace.id,
+      workspaceId: 'local', // currentWorkspace.id,
       vacationId: currentVacationId,
       updates
     }));
@@ -255,29 +255,29 @@ const App = () => {
     }
   };
 
-  // Show loading screen while checking auth
-  if (authLoading) {
-    return (
-      <div className="app loading">
-        <div className="loading-container">
-          <Logo size="large" />
-          <p>Loading...</p>
-        </div>
-      </div>
-    );
-  }
+  // AUTH DISABLED - Skip loading/auth/workspace screens
+  // if (authLoading) {
+  //   return (
+  //     <div className="app loading">
+  //       <div className="loading-container">
+  //         <Logo size="large" />
+  //         <p>Loading...</p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
-  // Show auth screen if not authenticated
-  if (!user) {
-    return <AuthScreen />;
-  }
+  // // Show auth screen if not authenticated
+  // if (!user) {
+  //   return <AuthScreen />;
+  // }
 
-  // Show workspace selector if no workspace selected
-  if (!currentWorkspace) {
-    return <WorkspaceSelector />;
-  }
+  // // Show workspace selector if no workspace selected
+  // if (!currentWorkspace) {
+  //   return <WorkspaceSelector />;
+  // }
 
-  const isOwner = currentWorkspace.ownerId === user.uid;
+  const isOwner = false; // currentWorkspace.ownerId === user.uid;
 
   return (
     <div className="app">
@@ -289,7 +289,8 @@ const App = () => {
           <p className="app-tagline">Plan your perfect vacation with ease</p>
         </div>
         
-        <div className="header-actions">
+        {/* AUTH DISABLED - Hide workspace/user actions */}
+        {/* <div className="header-actions">
           <div className="workspace-pill">
             <span className="workspace-name">{currentWorkspace.name}</span>
             <span className="member-count">
@@ -322,7 +323,7 @@ const App = () => {
               Sign Out
             </button>
           </div>
-        </div>
+        </div> */}
       </header>
 
       <main className="app-main">
